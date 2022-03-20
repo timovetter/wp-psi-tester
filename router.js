@@ -42,11 +42,45 @@ router.post('/tests', async function (req, res) {
             }));
     }
     const d = await Promise.all(promises).then(data => data)
-    const r = await createIssue("Test Metrics | " + body.name, JSON.stringify(d)).then(res => res.json());
+    let post = createPost(d);
+
+    const r = await createIssue("Test Metrics | " + body.name, post).then(res => res.json());
     for (const index in d) {
         db.createRawEntry(body.name, body.urls[index], JSON.stringify(d[index]));
     }
     res.json(d);
 });
+
+
+/*
+## https://trunk-hy2b2li-rk425yy73kk4w.us-4.platformsh.site
+
+Scores:
+
+**total-blocking-time:** 1
+**largest-contentful-paint:** 0.95
+**cumulative-layout-shift:** 0.93
+**total-byte-weight:** 0.99
+ */
+function createPost(data) {
+    let post = "";
+    for (const d of data) {
+        post = post.concat('## Test on:', d.url, '\n');
+        post = post.concat('\n');
+        post = post.concat('Scores: ', '\n');
+
+        for (const dElement of Object.keys(d.audits)) {
+            if (d.audits[dElement].score !== null ){
+                post = post.concat('\n', `**${dElement}:** ${d.audits[dElement].score}`);
+            }
+        }
+    }
+
+    post = post.concat('\n\n### RAW JSON START\n')
+    post = post.concat('```JSON\n',JSON.stringify(data), '\n```');
+    post = post.concat('\n### RAW JSON END\n')
+
+    return post;
+}
 
 module.exports = router;
