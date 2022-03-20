@@ -1,0 +1,14 @@
+name: app
+type: nodejs:14
+
+web:
+  commands:
+    start: "node main.js"
+
+
+disk: 512
+
+mounts:
+  'run':
+    source: local
+    source_path: run
