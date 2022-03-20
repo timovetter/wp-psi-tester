@@ -22,30 +22,54 @@ client.query('CREATE TABLE IF NOT EXISTS calculated(id serial primary key, times
     }
 })
 
-module.exports = function getRawData(id) {
-    console.log(id);
+const getRawData = (id) => {
+    return new Promise((resolve, reject) => {
+        client.query('SELECT * FROM raw where id=$1', [id], (err, res) => {
+            if (err) {
+                reject(err);
+            } else if (res.rows.length) {
+                resolve(res.rows[0]);
+            }
+        });
+    });
 }
 
 const insertRawData = (commitId, url, result) => {
-    client.query('INSERT INTO raw(commit, url, result) VALUES($1, $2, $3)', [commitId, url, result], (res, err) => {
-        if (err) {
-            console.log(err.stack);
-        } else {
-            console.log(res);
-        }
+    return new Promise((resolve, reject) => {
+        client.query('INSERT INTO raw(commit, url, result) VALUES($1, $2, $3) RETURNING *', [commitId, url, result], (err, res) => {
+            if (err) {
+                reject(err);
+            } else if(res.rows.length) {
+                resolve(res.rows[0].id);
+            } else {
+                reject('no error and no entry');
+            }
+        });
     });
 }
 
 const insertCalculatedData = (rawIds, summary) => {
-    client.query('INSERT INTO calculated(rawIds, summary) VALUES($1, $2)', [rawIds, summary], (res, err) => {
-        if (err) {
-            console.log(err.stack);
-        } else {
-            console.log(res);
-        }
+    return new Promise((resolve, reject) => {
+        client.query('INSERT INTO calculated(rawIds, summary) VALUES($1, $2)', [rawIds, summary], (err, res) => {
+            if (err) {
+                reject(err);
+            } else {
+                console.log(res);
+            }
+        });
     });
 }
 
 module.exports = insertRawData;
 module.exports = insertCalculatedData;
+module.exports = getRawData;
+
+// async function test() {
+//     const id = await insertRawData('test', 'test', '{}');
+//     console.log(id);
+//     const data = await getRawData(id);
+//     console.log(data);
+// }
+// test();
+
 
