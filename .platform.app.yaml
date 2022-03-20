@@ -1,14 +1,16 @@
 name: app
 type: nodejs:16
 
+relationships:
+  postgresdatabase: "dbpostgres:postgresql"
+
+
 web:
   commands:
     start: "node main.js"
 
 
 disk: 512
-relationships:
-  postgresdatabase: "dbpostgres:postgresql"
 
 mounts:
   'run':
