@@ -62,12 +62,26 @@ const getCalculatedData = (id) => {
     });
 }
 
-const insertRawData = (commitId, url, result) => {
+const createRawEntry = (commitId, url) => {
     return new Promise((resolve, reject) => {
-        client.query('INSERT INTO raw(commit, url, result) VALUES($1, $2, $3) RETURNING *', [commitId, url, result], (err, res) => {
+        client.query('INSERT INTO raw(commit, url) VALUES($1, $2) RETURNING *', [commitId, url], (err, res) => {
             if (err) {
                 reject(err);
-            } else if(res.rows.length) {
+            } else if (res.rows.length) {
+                resolve(res.rows[0].id);
+            } else {
+                reject('no error and no entry');
+            }
+        });
+    });
+}
+
+const updateRawEntry = (id, result) => {
+    return new Promise((resolve, reject) => {
+        client.query('UPDATE raw SET result = $1 where id=$2 RETURNING *', [result, id], (err, res) => {
+            if (err) {
+                reject(err);
+            } else if (res.rows.length) {
                 resolve(res.rows[0].id);
             } else {
                 reject('no error and no entry');
@@ -88,16 +102,18 @@ const insertCalculatedData = (rawIds, summary) => {
     });
 }
 
-module.exports = insertRawData;
+module.exports = createRawEntry;
 module.exports = insertCalculatedData;
 module.exports = getRawData;
 
-// async function test() {
-//     const id = await insertRawData('test', 'test', '{}');
-//     console.log(id);
-//     const data = await getRawData(id);
-//     console.log(data);
-// }
-// test();
+async function test() {
+    const id = await createRawEntry('test', 'https://google.de');
+    console.log(id);
+    const data = await getRawData(id);
+    console.log(data);
+    const update = await updateRawEntry(id, '{"test": "test"}');
+    console.log(update);
+}
+test();
 
 
