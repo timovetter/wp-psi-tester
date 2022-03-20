@@ -6,7 +6,7 @@ const client = new Client({
 })
 client.connect();
 
-client.query('CREATE TABLE IF NOT EXISTS raw(id serial primary key, timestamp timestamp default current_timestamp, commit text, URL text, result json)', null, (err, res) => {
+client.query('CREATE TABLE IF NOT EXISTS raw(id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timestamp timestamp default current_timestamp, commit text, URL text, result json)', null, (err, res) => {
     if (err) {
         console.log(err.stack)
     } else {
@@ -14,7 +14,7 @@ client.query('CREATE TABLE IF NOT EXISTS raw(id serial primary key, timestamp ti
     }
 })
 
-client.query('CREATE TABLE IF NOT EXISTS calculated(id serial primary key, timestamp timestamp default current_timestamp, rawIds text[], summary json)', null, (err, res) => {
+client.query('CREATE TABLE IF NOT EXISTS calculated(id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timestamp timestamp default current_timestamp, rawIds text[], summary json)', null, (err, res) => {
     if (err) {
         console.log(err.stack)
     } else {
@@ -25,6 +25,18 @@ client.query('CREATE TABLE IF NOT EXISTS calculated(id serial primary key, times
 const getRawData = (id) => {
     return new Promise((resolve, reject) => {
         client.query('SELECT * FROM raw where id=$1', [id], (err, res) => {
+            if (err) {
+                reject(err);
+            } else if (res.rows.length) {
+                resolve(res.rows[0]);
+            }
+        });
+    });
+}
+
+const getCalculatedData = (id) => {
+    return new Promise((resolve, reject) => {
+        client.query('SELECT * FROM calculated where id=$1', [id], (err, res) => {
             if (err) {
                 reject(err);
             } else if (res.rows.length) {
