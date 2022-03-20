@@ -62,9 +62,9 @@ const getCalculatedData = (id) => {
     });
 }
 
-const createRawEntry = (commitId, url) => {
+const createRawEntry = (commitId, url, result) => {
     return new Promise((resolve, reject) => {
-        client.query('INSERT INTO raw(commit, url) VALUES($1, $2) RETURNING *', [commitId, url], (err, res) => {
+        client.query('INSERT INTO raw(commit, url, result) VALUES($1, $2, $3) RETURNING *', [commitId, url, result], (err, res) => {
             if (err) {
                 reject(err);
             } else if (res.rows.length) {
@@ -108,11 +108,11 @@ module.exports = getRawData;
 
 async function test() {
     const id = await createRawEntry('test', 'https://google.de');
-    console.log(id);
+    console.log('inserted id', id);
     const data = await getRawData(id);
-    console.log(data);
+    console.log('raw data', data);
     const update = await updateRawEntry(id, '{"test": "test"}');
-    console.log(update);
+    console.log('update', update);
 }
 test();
 
