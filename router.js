@@ -11,7 +11,7 @@ const psi_url = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
 
 router.post('/tests', async function (req, res) {
     const body = req.body;
-    if (body.urls === undefined) {
+    if (body.urls === undefined || body.name === undefined) {
         res.sendStatus(400);
         return;
     }
@@ -39,7 +39,7 @@ router.post('/tests', async function (req, res) {
     }
 
     const d = await Promise.all(promises).then(data => data)
-    const r = await createIssue("Test Metrics | " + req., JSON.stringify(d)).then(res => res.json());
+    const r = await createIssue("Test Metrics | " + req.name, JSON.stringify(d)).then(res => res.json());
     console.log(r);
     res.json(d);
 });
