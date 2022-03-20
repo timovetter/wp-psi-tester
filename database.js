@@ -24,16 +24,12 @@ client.connect();
 client.query('CREATE TABLE IF NOT EXISTS raw(id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timestamp timestamp default current_timestamp, commit text, URL text, result json)', null, (err, res) => {
     if (err) {
         console.log(err.stack)
-    } else {
-        console.log(res)
     }
 })
 
 client.query('CREATE TABLE IF NOT EXISTS calculated(id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timestamp timestamp default current_timestamp, rawIds text[], summary json)', null, (err, res) => {
     if (err) {
         console.log(err.stack)
-    } else {
-        console.log(res)
     }
 })
 
@@ -94,13 +90,13 @@ const insertCalculatedData = (rawIds, summary) => {
         client.query('INSERT INTO calculated(rawIds, summary) VALUES($1, $2)', [rawIds, summary], (err, res) => {
             if (err) {
                 reject(err);
-            } else {
-                console.log(res);
             }
         });
     });
 }
 
-module.exports = createRawEntry;
-module.exports = insertCalculatedData;
-module.exports = getRawData;
+module.exports = {
+    createRawEntry,
+    insertCalculatedData,
+    getRawData
+}

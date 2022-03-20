@@ -1,7 +1,8 @@
-const express =  require('express');
+const express = require('express');
 const fetch = require('node-fetch');
-const createIssue = require('./github')
+const createIssue = require('./github');
 const pshConfig = require('platformsh-config').config();
+const db = require('./database');
 
 const router = require('express').Router();
 
@@ -22,7 +23,10 @@ router.post('/tests', async function (req, res) {
         url.searchParams.append('key', pshConfig.variable("PSI_KEY", process.env.PSI_KEY));
         promises.push(fetch(url.href).then(res => {
             if (res.status === 200) return res.json()
-            console.log(res.status, res.text()); return {}
+            res.text().then(
+                t => console.log(res.status, t)
+            )
+            return {}
         })
             .then(json => {
                 const audits = json.lighthouseResult.audits;
@@ -40,7 +44,9 @@ router.post('/tests', async function (req, res) {
 
     const d = await Promise.all(promises).then(data => data)
     const r = await createIssue("Test Metrics | " + body.name, JSON.stringify(d)).then(res => res.json());
-    console.log(r);
+    for (const index in d) {
+        db.createRawEntry(body.name, body.urls[index], JSON.stringify(d[index]));
+    }
     res.json(d);
 });
 
