@@ -1,9 +1,25 @@
+const pshConfig = require('platformsh-config').config();
 const {Client} = require('pg')
-const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
-    port: 5432,
-})
+
+let client;
+if (pshConfig.inRuntime()) {
+    console.log("Using PSH runtime configuration")
+    const credentials = pshConfig.credentials("postgresql");
+    client = new Client({
+        host: credentials.host,
+        port: credentials.port,
+        user: credentials.username,
+        password: credentials.password,
+        database: credentials.path,
+    })
+} else {
+    client = new Client({
+        host: "localhost",
+        port: 5432,
+        user: 'postgres',
+    })
+}
+
 client.connect();
 
 client.query('CREATE TABLE IF NOT EXISTS raw(id serial primary key, timestamp timestamp default current_timestamp, commit text, URL text, result json)', null, (err, res) => {

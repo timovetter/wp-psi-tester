@@ -1,5 +1,5 @@
 name: app
-type: nodejs:14
+type: nodejs:16
 
 web:
   commands:
@@ -7,6 +7,8 @@ web:
 
 
 disk: 512
+relationships:
+  postgresdatabase: "dbpostgres:postgresql"
 
 mounts:
   'run':
