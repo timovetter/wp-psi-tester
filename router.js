@@ -39,7 +39,7 @@ router.post('/tests', async function (req, res) {
     }
 
     const d = await Promise.all(promises).then(data => data)
-    const r = await createIssue("Test Metrics | " + req.name, JSON.stringify(d)).then(res => res.json());
+    const r = await createIssue("Test Metrics | " + body.name, JSON.stringify(d)).then(res => res.json());
     console.log(r);
     res.json(d);
 });
