@@ -4,7 +4,7 @@ const {Client} = require('pg')
 let client;
 if (pshConfig.inRuntime()) {
     console.log("Using PSH runtime configuration")
-    const credentials = pshConfig.credentials("postgresql");
+    const credentials = pshConfig.credentials("postgresdatabase");
     client = new Client({
         host: credentials.host,
         port: credentials.port,
