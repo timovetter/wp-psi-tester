@@ -3,9 +3,9 @@ import fetch from 'node-fetch';
 let base64 = require('base-64');
 
 const config = {
-    username: "",
-    token: "",
-    repo: "",
+    username: process.env.GIT_USERNAME || "",
+    token: process.env.GIT_TOKEN || "",
+    repo: process.env.GIT_REPO || "",
 }
 
 const createIssue = async (title, body) => {
