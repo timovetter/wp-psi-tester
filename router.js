@@ -30,18 +30,17 @@ router.post('/tests', async function (req, res) {
         })
             .then(json => {
                 const audits = json.lighthouseResult.audits;
+                for (const a in audits) {
+                    delete audits[a].details;
+                }
+                delete json.lighthouseResult.categories.performance.auditRefs;
                 return {
                     url: test_url,
-                    metrics: audits.metrics.details.items,
-                    total_blocking_time: audits['total-blocking-time'],
-                    largest_contentful_paint: audits['largest-contentful-paint'],
-                    cumulative_layout_shift: audits['cumulative-layout-shift'],
-                    total_byte_weight: audits['total-byte-weight'],
+                    audits: audits,
                     categories: json.lighthouseResult.categories,
                 }
             }));
     }
-
     const d = await Promise.all(promises).then(data => data)
     const r = await createIssue("Test Metrics | " + body.name, JSON.stringify(d)).then(res => res.json());
     for (const index in d) {
