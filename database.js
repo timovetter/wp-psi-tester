@@ -1,6 +1,5 @@
 const pshConfig = require('platformsh-config').config();
 const {Client} = require('pg')
-
 let client;
 if (pshConfig.inRuntime()) {
     console.log("Using PSH runtime configuration")
