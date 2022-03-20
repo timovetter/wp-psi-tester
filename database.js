@@ -105,15 +105,3 @@ const insertCalculatedData = (rawIds, summary) => {
 module.exports = createRawEntry;
 module.exports = insertCalculatedData;
 module.exports = getRawData;
-
-async function test() {
-    const id = await createRawEntry('test', 'https://google.de');
-    console.log('inserted id', id);
-    const data = await getRawData(id);
-    console.log('raw data', data);
-    const update = await updateRawEntry(id, '{"test": "test"}');
-    console.log('update', update);
-}
-test();
-
-
