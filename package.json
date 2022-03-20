@@ -10,10 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "base-64": "^1.0.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "platformsh-config": "^2.4.1",
+    "node-fetch": "^3.2.3",
     "pg": "^8.7.3",
+    "platformsh-config": "^2.4.1",
     "sqlite3": "^5.0.2"
   }
 }
