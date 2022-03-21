@@ -13,9 +13,10 @@ if (pshConfig.inRuntime()) {
     })
 } else {
     client = new Client({
-        host: "localhost",
+        host: '',
         port: 5432,
-        user: 'postgres',
+        user: '',
+        password: ''
     })
 }
 
@@ -40,6 +41,18 @@ const getRawData = (id) => {
                 reject(err);
             } else if (res.rows.length) {
                 resolve(res.rows[0]);
+            }
+        });
+    });
+}
+
+const getAllCalculated = () => {
+    return new Promise((resolve, reject) => {
+        client.query('SELECT * FROM calculated', (err, res) => {
+            if (err) {
+                reject(err);
+            } else if (res.rows.length) {
+                resolve(res.rows);
             }
         });
     });
@@ -103,5 +116,6 @@ const updateRawEntry = (id, result) => {
 module.exports = {
     createRawEntry,
     getRawData,
-    createCalculatedData
+    createCalculatedData,
+    getAllCalculated
 }

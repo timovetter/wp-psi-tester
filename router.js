@@ -10,6 +10,11 @@ router.use(express.json());    // parse request body as JSON
 
 const psi_url = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
 
+router.get('/dashboard', async function(req, res) {
+    const rows = await db.getAllCalculated();
+    res.json(rows);
+})
+
 router.post('/tests', async function (req, res) {
     const body = req.body;
     if (body.urls === undefined || body.name === undefined) {
