@@ -21,13 +21,13 @@ if (pshConfig.inRuntime()) {
 
 client.connect();
 
-client.query('CREATE TABLE IF NOT EXISTS raw(id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timestamp timestamp default current_timestamp, commit text, URL text, result json)', null, (err, res) => {
+client.query('CREATE TABLE IF NOT EXISTS raw(id uuid DEFAULT gen_random_uuid() PRIMARY KEY,calculated uuid, timestamp timestamp default current_timestamp, URL text, result json)', null, (err, res) => {
     if (err) {
         console.log(err.stack)
     }
 })
 
-client.query('CREATE TABLE IF NOT EXISTS calculated(id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timestamp timestamp default current_timestamp, rawIds text[], summary json)', null, (err, res) => {
+client.query('CREATE TABLE IF NOT EXISTS calculated(id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timestamp timestamp default current_timestamp,commit text, summary json)', null, (err, res) => {
     if (err) {
         console.log(err.stack)
     }
@@ -57,9 +57,24 @@ const getCalculatedData = (id) => {
     });
 }
 
-const createRawEntry = (commitId, url, result) => {
+
+const createCalculatedData = (commitId, summury) => {
     return new Promise((resolve, reject) => {
-        client.query('INSERT INTO raw(commit, url, result) VALUES($1, $2, $3) RETURNING *', [commitId, url, result], (err, res) => {
+        client.query('INSERT INTO calculated(commit, summary) VALUES($1, $2) RETURNING *', [commitId, summury], (err, res) => {
+            if (err) {
+                reject(err);
+            } else if (res.rows.length) {
+                resolve(res.rows[0].id);
+            } else {
+                reject('no error and no entry');
+            }
+        });
+    });
+}
+
+const createRawEntry = (calculatedId, url, result) => {
+    return new Promise((resolve, reject) => {
+        client.query('INSERT INTO raw(calculated, url, result) VALUES($1, $2, $3) RETURNING *', [calculatedId, url, result], (err, res) => {
             if (err) {
                 reject(err);
             } else if (res.rows.length) {
@@ -85,18 +100,8 @@ const updateRawEntry = (id, result) => {
     });
 }
 
-const insertCalculatedData = (rawIds, summary) => {
-    return new Promise((resolve, reject) => {
-        client.query('INSERT INTO calculated(rawIds, summary) VALUES($1, $2)', [rawIds, summary], (err, res) => {
-            if (err) {
-                reject(err);
-            }
-        });
-    });
-}
-
 module.exports = {
     createRawEntry,
-    insertCalculatedData,
-    getRawData
+    getRawData,
+    createCalculatedData
 }
