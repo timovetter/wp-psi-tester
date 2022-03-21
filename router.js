@@ -49,10 +49,15 @@ router.post('/tests', async function (req, res) {
     let post = createPost(d);
     const r = await createIssue("Test Metrics | " + body.name, post).then(res => res.json());
 
-    const calculatedInsertRes = await db.createCalculatedData(body.name, JSON.stringify(d));
-    // for (const index in d) {
-    //     db.createRawEntry(calculatedInsertRes, body.urls[index], JSON.stringify(d[index]));
-    // }
+
+    for (const url of Object.keys(d)) {
+        const m = median(url, d[url]);
+        const id = await db.createCalculatedData(body.name, m);
+        for (const rawValue of d[url]) {
+            await db.createRawEntry(id, url, rawValue);
+        }
+    }
+
     res.json(d);
 });
 
@@ -68,6 +73,38 @@ function groupData(data) {
         }
     }
     return o;
+}
+
+function median(url, raw) {
+    const m = {url};
+
+    for (const key of Object.keys(raw[0].audits)) {
+        if (raw[0].audits[key].score === null ) {
+            continue;
+        }
+        const values = []
+        for (let i = 0; i < raw.length; i++) {
+            values.push(raw[i].audits[key].score);
+        }
+
+        m[key] = medianValue(values);
+    }
+    return m
+}
+
+function medianValue(values) {
+    if(values.length ===0) throw new Error("No inputs");
+
+    values.sort(function(a,b){
+        return a-b;
+    });
+
+    const half = Math.floor(values.length / 2);
+
+    if (values.length % 2)
+        return values[half];
+
+    return (values[half - 1] + values[half]) / 2.0;
 }
 
 /*
@@ -93,9 +130,11 @@ function createPost(data) {
         if (data[url].length === 0) {
             continue;
         }
+        const m = median(url, data[url]);
+
         for (const dElement of Object.keys(data[url][0].audits)) {
             if (data[url][0].audits[dElement].score !== null ){
-                post = post.concat('\n', `**${dElement}:** ${data[url][0].audits[dElement].score}`);
+                post = post.concat('\n', `**${dElement}:** ${m[dElement]}`);
             }
         }
         let i = 1;
