@@ -99,8 +99,9 @@ function createPost(data) {
         }
         let i = 1;
         for (const rawData of data[url]) {
-            post = post.concat(`\n\n### RAW JSON START: RUN ${i}\n`, )
+            post = post.concat(`\n\n#### RAW JSON START: RUN ${i}\n`, )
             post = post.concat('```JSON\n', JSON.stringify(rawData), '\n```');
+            post = post.concat(`\n#### RAW JSON END: RUN ${i}\n`)
             i++;
         }
     }
