@@ -12,7 +12,8 @@ const config = {
 const createIssue = async (title, body) => {
     const postBody = {
         title,
-        body
+        body,
+        labels: ["PSI TEST"]
     }
     return await fetch('https://api.github.com/repos/' + config.repo + '/issues', {
         method: 'post',
