@@ -49,7 +49,7 @@ router.post('/tests', async function (req, res) {
     let post = createPost(d);
     const r = await createIssue("Test Metrics | " + body.name, post).then(res => res.json());
 
-    //const calculatedInsertRes = await db.createCalculatedData(body.name, JSON.stringify(d));
+    const calculatedInsertRes = await db.createCalculatedData(body.name, JSON.stringify(d));
     // for (const index in d) {
     //     db.createRawEntry(calculatedInsertRes, body.urls[index], JSON.stringify(d[index]));
     // }
